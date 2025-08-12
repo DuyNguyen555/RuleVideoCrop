@@ -1,0 +1,100 @@
+Xử lý cắt (crop) vùng video để ghi lại
+Trong quá trình xử lý từng khung hình (frame), hệ thống không ghi lại toàn bộ khung hình gốc mà chỉ tập trung vào vùng quan tâm (Region of Interest - ROI). Quy trình như sau:
+
+1.Xác định thanh màu cam
+- Mỗi frame sẽ được chuyển đổi sang không gian màu HSV.
+- Áp dụng ngưỡng màu để tìm ra các vùng có màu cam.
+- Gộp các đường viền liên quan để xác định chính xác vị trí của thanh màu cam trong khung hình.
+
+2.Khoanh vùng chứa QR Code
+- Từ vị trí thanh cam, suy ra khu vực có khả năng chứa QR Code.
+- Cắt ra vùng ảnh nhỏ hơn từ frame gốc (ROI) để tập trung xử lý.
+
+3.Làm phẳng và chuẩn hóa vùng QR Code
+- Sử dụng phép biến đổi góc nhìn (Perspective Transform) để "làm phẳng" vùng chứa QR, tránh ảnh bị méo do góc chụp.
+- Chuẩn hóa kích thước ảnh QR trước khi đưa vào bộ giải mã.
+
+4.Tối ưu cho việc ghi video
+- Chỉ khi phát hiện chuyển động (motion detection) và vùng QR code/thanh cam xuất hiện, hệ thống mới bắt đầu ghi video.
+- Các đoạn video được ghi sẽ chỉ chứa phần khung hình có liên quan (đã crop) nhằm giảm dung lượng lưu trữ và tập trung vào dữ liệu cần thiết.
+
+
+
+
+Start
+|
+|-- Khởi tạo
+|   |-- Mở video từ `config.video_path`
+|   |-- Lấy các thuộc tính của video (fps, width, height)
+|   |-- Tạo đối tượng `EventVideoRecorder` để quản lý việc ghi video
+|   |-- Tạo đối tượng `MotionDetector` để phát hiện chuyển động
+|   |-- Khởi tạo các biến (frame_index, kernel, etc.)
+|   |-- Bắt đầu bộ đếm thời gian
+|
+|-- Bắt đầu vòng lặp chính (while video đang mở)
+|   |
+|   |-- Đọc một frame từ video
+|   |-- Nếu không đọc được frame -> Kết thúc vòng lặp
+|   |
+|   |-- Gọi hàm `ProcessFrame(frame, ...)`
+|   |   |
+|   |   |-- (Chỉ xử lý mỗi 3 frame một lần)
+|   |   |-- Thay đổi kích thước frame và cắt vùng quan tâm (ROI)
+|   |   |
+|   |   |-- Gọi hàm `DetectOrangeBar(roi, ...)` để tìm thanh màu cam
+|   |   |   |-- Chuyển đổi màu sang HSV, áp dụng ngưỡng màu cam
+|   |   |   |-- Tìm và hợp nhất các đường viền để xác định vùng chứa thanh cam
+|   |   |   `-- Trả về `bar_found` (True/False) và tọa độ của thanh
+|   |   |
+|   |   |-- Nếu `bar_found` là True:
+|   |   |   |-- Gọi hàm `DetectQRCode(frame, bar_box_points, ...)`
+|   |   |   |   |-- Quy đổi tọa độ của thanh từ ảnh đã resize về ảnh gốc
+|   |   |   |   |-- "Làm phẳng" vùng chứa QR code bằng phép biến đổi góc nhìn (Perspective Transform)
+|   |   |   |   |-- Sử dụng `pyzbar` để giải mã QR code từ vùng đã làm phẳng
+|   |   |   |   |-- Thêm QR code mới vào danh sách `config.ls_qr`
+|   |   |   |   `-- Trả về `isQR` (True/False) và nội dung QR
+|   |   |
+|   |   `-- Gọi hàm `Motion(...)`
+|   |       |
+|   |       |-- Gọi `motion_detector.update(frame, isQR)`
+|   |       |   |-- (Bỏ qua tính toán nếu mới thấy QR và đang đi lên/xuống)
+|   |       |   |-- Tính toán luồng quang học (Optical Flow) để xác định vector chuyển động
+|   |       |   |-- Xác định hướng chuyển động thô (Up, Down, Left, Right, Stop)
+|   |       |   |-- Sử dụng bộ đệm để ổn định hướng, tránh thay đổi đột ngột
+|   |       |   `-- Trả về hướng chuyển động ổn định
+|   |       |
+|   |       |-- Cập nhật trạng thái chuyển động (trước đó và hiện tại)
+|   |       `-- Logic kích hoạt (Trigger Logic):
+|   |           |-- Nếu chuyển động thay đổi (vd: Stop -> Down), đặt `config.trigger_start = True`
+|   |           |-- Nếu chuyển động thay đổi (vd: Down -> Left) hoặc thanh cam đạt vị trí nhất định, đặt `config.trigger_stop = True`
+|   |
+|   |-- (Quay lại vòng lặp chính)
+|   |-- Sắp xếp danh sách `config.ls_qr`
+|   |
+|   |-- Nếu `config.trigger_start` là True:
+|   |   |-- Gọi `recorder.start_recording()` với tên file tạm thời
+|   |   `-- Lưu lại đường dẫn video tạm
+|   |
+|   |-- Nếu `config.trigger_stop` là True:
+|   |   |-- Gọi `recorder.stop_recording()`
+|   |   `-- Chuyển đường dẫn video tạm vào danh sách chờ đổi tên `config.name_record_save`
+|   |
+|   |-- Gọi hàm `RenameVideo()`
+|   |   |-- Nếu có video đang chờ đổi tên VÀ có QR code trong danh sách:
+|   |   |   |-- Lấy 1 video và 1 QR code
+|   |   |   |-- Đổi tên file video thành tên của QR code
+|   |   |   `-- Cập nhật lại các danh sách
+|   |   |-- Nếu có video đang chờ nhưng không có QR code (sau một khoảng thời gian chờ):
+|   |   |   `-- Xóa video khỏi danh sách chờ (ghi nhận là không có QR)
+|   |
+|   |-- Gọi `recorder.update(frame)` (ghi frame vào video nếu đang trong trạng thái ghi)
+|   |-- Tăng `frame_index`
+|
+|-- Kết thúc vòng lặp
+|
+|-- Giải phóng tài nguyên video (`cap.release()`)
+|-- Dừng ghi hình lần cuối (`recorder.stop_recording()`)
+|-- In tổng thời gian thực thi
+|-- Đóng tất cả cửa sổ của OpenCV
+|
+Kết thúc
