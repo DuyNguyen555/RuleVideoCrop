@@ -35,3 +35,15 @@
         + Đổi tên và lưu trữ
         + Khi đã có 2 ảnh crop + mã QR hợp lệ, gọi rename_pair_from_queue() để đổi tên ảnh theo đúng format:
             <pallet_seq>-<qr_code>_<floor>
+
+======================================================
+Lưu ý: để có thể hoạt động tốt nhất thì cam vận hành phải ổn định
+- Tốc độ chạy phải đều
+- Không zoom in hay zoom out trong lúc chạy
+
+Hiện tại mới test 1 video 1p
+Trong log_time.csv
+- frame: số frame thứ n đang duyệt qua
+- read_ms: thời gian đọc frame
+- proc_ms: thời gian xử lý frame
+- total_ms: tổng thời gian chạy khi xử lý 1 frame
