@@ -50,3 +50,4 @@ def rename_pair_from_queue(output_img_dir: str,
         pallet_seq -= 1
 
     return imgs_save, ls_qr, name_video_saved, pallet_seq, True
+

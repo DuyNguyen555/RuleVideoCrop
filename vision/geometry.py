@@ -1,6 +1,36 @@
 import numpy as np
+import math
 import config
-import re
+
+
+def roi_bounds(frame_shape):
+        H, W = frame_shape[:2]
+
+        # clamp
+        x1r = max(0.0, min(1.0, float(getattr(config, "X1_REL", 0.0))))
+        x2r = max(0.0, min(1.0, float(getattr(config, "X2_REL", 1.0))))
+        y1r = max(0.0, min(1.0, float(getattr(config, "Y1_REL", 0.0))))
+        y2r = max(0.0, min(1.0, float(getattr(config, "Y2_REL", 1.0))))
+
+        # nếu cấu hình ngược >> full frame
+        if x2r <= x1r: x1r, x2r = 0.0, 1.0
+        if y2r <= y1r: y1r, y2r = 0.0, 1.0
+
+        # start dùng floor, end dùng ceil (end là exclusive)
+        x1 = int(math.floor(x1r * W))
+        x2 = int(math.ceil (x2r * W))
+        y1 = int(math.floor(y1r * H))
+        y2 = int(math.ceil (y2r * H))
+
+        # kẹp biên (cho phép end == W/H vì slice end là exclusive)
+        x1 = max(0, min(x1, W-1))
+        y1 = max(0, min(y1, H-1))
+        x2 = max(x1+1, min(x2, W))
+        y2 = max(y1+1, min(y2, H))
+
+        roi_x1, roi_y1 = x1, y1
+        roi_x2, roi_y2 = x2, y2
+        return roi_x1, roi_y1, roi_x2, roi_y2
 
 def resize_points_to_roi(points: np.ndarray, roi_shape, roi_resized_wh=None, normalized=False):
     """
@@ -28,10 +58,3 @@ def resize_points_to_roi(points: np.ndarray, roi_shape, roi_resized_wh=None, nor
     return pts
 
 
-_QR_PATTERN = re.compile(r"^[A-Z]{2}-\d{3}-\d$")
-
-def check_qr(qr):
-    """
-    Kiểm tra mã QR: [2 chữ]-[3 số]-[1 số]
-    """
-    return bool(_QR_PATTERN.match(qr))

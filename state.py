@@ -53,6 +53,8 @@ class State:
 
     # Directory
     directory_cooldown_frame = 0
+    prev_y_bar = None
+    directory = None
 
     # Rule Up khi lên cao
     up_no_bar_counter: int = 0

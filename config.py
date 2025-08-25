@@ -26,11 +26,15 @@ REARM_COOLDOWN_FRAMES = 10
 # Renamer
 TIME_RENAME_IMG_DEFAULT = 300
 
-# Màu orange trong HSV
+# Ngưỡng màu cam trong HSV
 ORANGE_LOWER = (10, 150, 210)
 ORANGE_UPPER = (15, 255, 255)
 
+# Ngưỡng màu trắng trong HSV
+WHITE_LOWER = (0, 0, 200)
+WHITE_UPPER = (179, 40, 255)
+
 # Directory
-DIRECTORY_COOLDOWN = 56 # thời gian để bắt đầu tìm hướng cam lại
-WAIT_PAIR_FRAMES = 20   # Rule QRcode có đuôi 1 và 2
+DIRECTORY_COOLDOWN = 56   # thời gian để bắt đầu tìm hướng cam lại
+WAIT_PAIR_FRAMES = 20     # Rule QRcode có đuôi 1 và 2
 UP_NO_BAR_MAX_FRAMES = 30 # Rule khi cam chạy lên trên cùng để lưu ảnh
