@@ -12,7 +12,7 @@ def detect_orange_bar(hsv, kernel, show_result=True):
 
     mask = cv2.inRange(hsv, lower, upper)
     mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    # cv2.imshow("Mask",mask)
+    cv2.imshow("Mask",mask)
 
     contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 

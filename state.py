@@ -20,8 +20,8 @@ class State:
 
     # QR
     scanned_qr: bool = False
-    frame_stop_scan: int = 30
-    count_qr_1_2: int = 0
+    frame_stop_scan_qr: int = 0
+    has_found_qr: bool = False
     sort: bool = False
     ls_qr: List[str] = field(default_factory=list)
     name_video_saved: List[str] = field(default_factory=list)

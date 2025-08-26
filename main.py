@@ -1,9 +1,7 @@
 import os
 import time
 import cv2
-import numpy as np
 import csv
-
 
 import config
 from state import State
@@ -20,10 +18,10 @@ def main():
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     state = State(
-        frame_stop_scan=config.FRAME_STOP_SCAN,
-        time_reset_crop_img=config.TIME_RESET_CROP_IMG,
-        rearm_cooldown_frames=config.REARM_COOLDOWN_FRAMES,
-        time_rename_img=config.TIME_RENAME_IMG_DEFAULT
+        # frame_stop_scan=config.FRAME_STOP_SCAN,
+        # time_reset_crop_img=config.TIME_RESET_CROP_IMG,
+        # rearm_cooldown_frames=config.REARM_COOLDOWN_FRAMES,
+        # time_rename_img=config.TIME_RENAME_IMG_DEFAULT
     )
 
     pipe = Pipeline(state=state, motion_detector=MotionDetector())
@@ -35,16 +33,14 @@ def main():
 
     frame_index = 0
     # chu kỳ log
-    N = 31
+    N = 30
 
     log_path = getattr(config, "LOG_TIME_CSV", "log_time.csv")
     os.makedirs(os.path.dirname(log_path) or ".", exist_ok=True)
     fcsv = open(log_path, "w", newline="")
     writer = csv.writer(fcsv)
-    writer.writerow(["frame", "read_ms", "orange_ms", "white_ms", "qr_ms", "motion_ms", "save_img_ms", "proc_ms", "total_ms"])
+    writer.writerow(["frame", "read_ms", "orange_ms", "white_ms", "qr_ms", "motion_ms", "save_img_ms", "rename_file_ms", "proc_ms", "total_ms"])
 
-    t_total_start = time.perf_counter()
-    total_frames = 0
 
     while cap.isOpened():
         t0 = time.perf_counter()
@@ -54,7 +50,7 @@ def main():
         read_time = time.perf_counter() - t0
 
         t1 = time.perf_counter()
-        o_t, w_t, qr_t, mt_t, si_t = pipe.process_frame(frame, kernel, frame_index)
+        o_t, w_t, qr_t, mt_t, si_t, re_t  = pipe.process_frame(frame, kernel, frame_index)
         proc_time = time.perf_counter() - t1
 
         total = read_time + proc_time
@@ -67,6 +63,7 @@ def main():
             f"{qr_t*1000:.4f}", 
             f"{mt_t*1000:.4f}", 
             f"{si_t*1000:.4f}", 
+            f"{re_t*1000:.4f}", 
             f"{proc_time*1000:.4f}", 
             f"{total*1000:.4f}",
         ])

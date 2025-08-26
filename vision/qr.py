@@ -4,8 +4,29 @@ import time
 import numpy as np
 from pyzbar import pyzbar
 
+cooldown_scan = 0
+two_qr = 0
 
 _QR_PATTERN = re.compile(r"^[A-Z]{2}-\d{3}-\d$")
+
+def sort_qr_motion(motion):
+    if motion == "Down":
+        return True
+    else:
+        return False
+
+    
+def isCooldown(qr):
+    global two_qr
+    if qr.endswith("1") or qr.endswith("2"):
+        two_qr += 1
+        if two_qr == 2:
+            two_qr = 0
+            return True
+        else:
+            return False
+
+    return True
 
 def check_qr(qr):
     """
@@ -32,8 +53,10 @@ def scan_pyzbar(gray_or_bgr_frame, show_result):
     res = pyzbar.decode(gray, symbols=[pyzbar.ZBarSymbol.QRCODE])
     return [b.data.decode("utf-8") for b in res] or []
 
-def detect_qr(frames, ls_qr, name_video_saved, show_result=False):
+def detect_qr(frames, ls_qr, name_video_saved, has_found_qr, motion, show_result=False):
     t0 = time.perf_counter()
+    if has_found_qr:
+        return has_found_qr, time.perf_counter() - t0
 
     for frame in frames:
         blur = cv2.GaussianBlur(frame, (3,3), 0)
@@ -43,8 +66,13 @@ def detect_qr(frames, ls_qr, name_video_saved, show_result=False):
         for qr in found_codes:
             if check_qr(qr) and qr not in ls_qr and qr not in name_video_saved:
                 ls_qr.append(qr)
+                print(qr)
+                has_found_qr = isCooldown(qr)
+        
+    if len(ls_qr) >= 2 and motion is not None:
+        ls_qr.sort(reverse=sort_qr_motion(motion))
 
     if show_result:
         print("QRCode: ", ls_qr)
 
-    return time.perf_counter() - t0
+    return has_found_qr, time.perf_counter() - t0

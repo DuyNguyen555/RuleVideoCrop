@@ -176,6 +176,7 @@ def FindMotion(motion_detector, roi, y_bar, state):
                 direction = "None"
                 motion_detector.reset_direction()
                 cooldown_departure = 0
+                state.name_video_saved = []
         else:
             cooldown_departure = 0
 

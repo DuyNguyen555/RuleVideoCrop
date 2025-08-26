@@ -1,15 +1,12 @@
 import cv2
-import math
-import numpy as np
-from typing import Tuple
+import time
 import config
 from state import State
 
 from vision.color_bar import detect_orange_bar, detect_white
 from vision.qr import detect_qr
 from vision.motion import MotionDetector, FindMotion
-from vision.draw import draw_thresholds
-from actions.snapshot import save_snapshot, snapshot_video
+from actions.snapshot import snapshot_video
 from vision.geometry import roi_bounds
 from actions.renamer import rename_pair_from_queue
 
@@ -17,24 +14,11 @@ class Pipeline:
     def __init__(self, state: State, motion_detector: MotionDetector):
         self.state = state
         self.motion_detector = motion_detector
-
-    def _sort_qr_motion(self, motion):
-        if motion == "Down":
-            return True
-        elif motion == "Up":
-            return False
-        
-    def _qr_base(self, qr: str) -> str:
-        return qr[:-1]
-
-    def _has_tail(self, base: str, tail: str) -> bool:
-        return any(s.startswith(base) and s.endswith(tail) for s in self.state.ls_qr)
     
     def _rename_if_ready(self):
-        # if self.state.wait_pair_active:
-        #     return
+        t0 = time.perf_counter()
         if self.state.motion_current not in ("Down", "Up"):
-            return
+            return time.perf_counter() - t0
         
         # nếu đã đủ 2 ảnh cho pallet đầu và có QR
         imgs, ls_qr, saved, new_pallet_seq, changed = rename_pair_from_queue(
@@ -44,13 +28,15 @@ class Pipeline:
         self.state.ls_qr = ls_qr
         self.state.name_video_saved = saved
         self.state.pallet_seq = new_pallet_seq
+
+        return time.perf_counter() - t0
         # if changed:
         #     self.state.is_rename_img = False
 
     def process_frame(self, frame, kernel, frame_index: int):
         if frame_index % 2 == 0:
-            return 0, 0, 0, 0, 0
-        
+            return 0, 0, 0, 0, 0, 0
+                
         # Rule ROI
         if not self.state.roi_ready:
             self.state.roi_x1, self.state.roi_y1, self.state.roi_x2, self.state.roi_y2 = roi_bounds(frame_shape=frame.shape)
@@ -70,17 +56,25 @@ class Pipeline:
                                                       show_result=False)
                 
         # Rule White in Orange bar
-        white_frame, boxes, white_time = detect_white(frame_bar, roi, show_result=True)
+        white_frame, boxes, white_time = detect_white(frame_bar, roi, show_result=False)
 
         # Rule QRcode
-        qr_time = detect_qr(white_frame, self.state.ls_qr, self.state.name_video_saved)
+        if self.state.has_found_qr:
+            self.state.frame_stop_scan_qr += 1
+            if self.state.frame_stop_scan_qr >= 20:
+                self.state.has_found_qr = False
+
+        self.state.has_found_qr, qr_time = detect_qr(frames=white_frame, 
+                                                        ls_qr=self.state.ls_qr, 
+                                                        name_video_saved=self.state.name_video_saved,
+                                                        has_found_qr=self.state.has_found_qr,
+                                                        motion=self.state.motion_current)
 
         # Rule Motion
         self.state.motion_current, self.state.departure, motion_time = FindMotion(motion_detector=self.motion_detector, 
-                                                                            roi=roi,
-                                                                            y_bar=y_bar,
-                                                                            state=self.state)
-        # self.state.motion_current, motion_time = FindMotion(self.motion_detector, roi)
+                                                                                roi=resized,
+                                                                                y_bar=y_bar,
+                                                                                state=self.state)
         # print(self.state.motion_current)
 
         # Rule Snapshot
@@ -92,9 +86,10 @@ class Pipeline:
         
 
         # Rule Rename
-        self._rename_if_ready()
+        rename_time = self._rename_if_ready()
 
-        return orange_time, white_time, qr_time, motion_time, save_img_time
+        return orange_time, white_time, qr_time, motion_time, save_img_time, rename_time
+        # return orange_time, white_time, qr_time, 0, 0, 0
     
 
 
