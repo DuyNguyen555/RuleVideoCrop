@@ -1,15 +1,11 @@
 import os
 
 # Input/Output
-NAME_VIDEO = "part_0120.mp4"
-VIDEO_PATH   = os.path.join("video", "input", NAME_VIDEO)
-OUTPUT_DIR   = os.path.join("video", "output")
-OUTPUT_IMG   = "img"
-# LOG_TIME_CSV = "infor_video"
+OUTPUT_IMG   = ""
+
+LOG_TIME_CSV = "log_time.csv"
 
 # ROI - W, H
-# X1_REL, X2_REL = 0, 1
-# Y1_REL, Y2_REL = 0, 1
 X1_REL, X2_REL = 0.2, 0.7
 Y1_REL, Y2_REL = 0.1, 0.7
 

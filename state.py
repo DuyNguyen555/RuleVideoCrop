@@ -60,6 +60,9 @@ class State:
     up_no_bar_counter: int = 0
     up_no_bar_captured: bool = False
 
+    # Output img
+    OUTPUT_IMG = ""
+
     # Record 
     # name_record: str = ""
     # name_record_start: str = ""

@@ -2,7 +2,6 @@ import numpy as np
 import math
 import config
 
-
 def roi_bounds(frame_shape):
         H, W = frame_shape[:2]
 
