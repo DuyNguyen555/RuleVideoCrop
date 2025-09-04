@@ -42,8 +42,8 @@ class Pipeline:
         #     self.state.is_rename_img = False
 
     def process_frame(self, frame, kernel, frame_index: int):
-        if frame_index % 2 == 0:
-            return 0, 0, 0, 0, 0, 0
+        # if frame_index % 2 == 0:
+        #     return 0, 0, 0, 0, 0, 0
             
         # Rule ROI
         if not self.state.roi_ready:
@@ -73,10 +73,11 @@ class Pipeline:
                 self.state.has_found_qr = False
 
         self.state.has_found_qr, qr_time = self.qr_detector.detect_qr(frames=white_frame, 
-                                                        ls_qr=self.state.ls_qr, 
-                                                        name_video_saved=self.state.name_video_saved,
-                                                        # has_found_qr=self.state.has_found_qr,
-                                                        motion=self.state.motion_current)
+                                                        state=self.state)
+        # self.state.has_found_qr, qr_time = self.qr_detector.detect_qr(frames=white_frame, 
+        #                                                 ls_qr=self.state.ls_qr, 
+        #                                                 name_video_saved=self.state.name_video_saved,
+        #                                                 motion=self.state.motion_current)
 
         # Rule Motion
         self.state.motion_current, self.state.departure, motion_time = FindMotion(motion_detector=self.motion_detector, 

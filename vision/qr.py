@@ -59,7 +59,7 @@ class QRDetector:
         res = pyzbar.decode(gray, symbols=[pyzbar.ZBarSymbol.QRCODE])
         return [b.data.decode("utf-8") for b in res] or []
 
-    def detect_qr(self, frames, ls_qr, name_video_saved, motion, show_result=False):
+    def detect_qr(self, frames, state, show_result=False):
         t0 = time.perf_counter()
 
         if self.has_found_qr:
@@ -78,15 +78,15 @@ class QRDetector:
 
             found_codes = self.scan_pyzbar(gray, show_result)
             for qr in found_codes:
-                if self.check_qr(qr) and qr not in ls_qr and qr not in name_video_saved:
-                    ls_qr.append(qr)
+                if self.check_qr(qr) and qr not in state.ls_qr and qr not in state.name_video_saved:
+                    state.ls_qr.append(qr)
                     # print(qr)
                     self.has_found_qr = self.hasFound(qr)
             
-        if len(ls_qr) >= 2 and motion is not None:
-            ls_qr.sort(reverse=self.sort_qr_motion(motion))
+        if len(state.ls_qr) >= 2 and state.motion_current is not None:
+            state.ls_qr.sort(reverse=self.sort_qr_motion(state.motion_current))
 
         if show_result:
-            print("QRCode: ", ls_qr)
+            print("QRCode: ", state.ls_qr)
 
         return self.has_found_qr, time.perf_counter() - t0

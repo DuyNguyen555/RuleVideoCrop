@@ -71,7 +71,7 @@ def detect_white(hsv, roi, show_result=True):
         return [], [], time.perf_counter() - t0
     
     segment = cv2.bitwise_and(cv2.inRange(hsv[...,0], 50, 150), cv2.inRange(hsv[...,1], 0, 100))
-    cv2.imwrite("mask.png",segment)
+    # cv2.imwrite("mask.png",segment)
 
     mask = cv2.inRange(hsv, np.array(config.WHITE_LOWER, np.uint8), np.array(config.WHITE_UPPER, np.uint8))
     kernel = np.ones((5,5), np.uint8)

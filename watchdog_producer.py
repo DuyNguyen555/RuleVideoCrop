@@ -28,9 +28,8 @@ class MyHandler(FileSystemEventHandler):
             t.daemon = True
             t.start()
 
-
 if __name__ == "__main__":
-    path = "./video/output" 
+    path = "./input" 
     event_handler = MyHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=False)

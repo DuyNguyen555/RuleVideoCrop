@@ -9,10 +9,10 @@ class Snapshot:
     def __init__(self):
         self.check_size = False
         self.is_snap = False
-        self.cooldown = 0
+        self.snapshot_frame_index = 0
         self.is_pallet_top = False
-        self.cooldown_top_up = 0
-        self.cooldown_top_down = 0
+        self.frame_top_up = 0
+        self.frame_top_down = 0
         self.departure_snap = False
         self.is_pallet_rule0_up = False
         self.before_motion = ""
@@ -66,18 +66,18 @@ class Snapshot:
         # Rule cam khởi đầu chạy
         if not self.departure_snap:
             if state.motion_current == "Down":
-                if self.cooldown_top_down == 0:
+                if self.frame_top_down == 0:
                     self.save_snapshot(
                         frame, f"{index_frame}_{state.motion_current}_0_0",
                         state.OUTPUT_IMG, 
                         state.imgs_save,
                         state.pallet_seq
                     )
-                    self.cooldown_top_down += 1
+                    self.frame_top_down += 1
                     return time.perf_counter() - t0
                 else:
-                    self.cooldown_top_down += 1
-                    if self.cooldown_top_down >= 40:
+                    self.frame_top_down += 1
+                    if self.frame_top_down >= 40:
                         self.save_snapshot(
                             frame, f"{index_frame}_{state.motion_current}_0_1",
                             state.OUTPUT_IMG, 
@@ -85,7 +85,7 @@ class Snapshot:
                             state.pallet_seq
                         )
                         self.departure_snap = True
-                        self.cooldown_top_down = 0
+                        self.frame_top_down = 0
                         return time.perf_counter() - t0
                     
             if state.motion_current == "Up" and not self.is_pallet_rule0_up:
@@ -102,8 +102,8 @@ class Snapshot:
         if y_bar == 0.0:
             if state.motion_current == "Down":
                 if self.is_snap:
-                    self.cooldown += 1
-                    if self.cooldown >= 20:
+                    self.snapshot_frame_index += 1
+                    if self.snapshot_frame_index >= 20:
                         self.save_snapshot(
                             frame, f"{index_frame}_{state.motion_current}_2",
                             state.OUTPUT_IMG, 
@@ -111,13 +111,13 @@ class Snapshot:
                             state.pallet_seq
                         )
                         self.is_snap = False
-                        self.cooldown = 0
+                        self.snapshot_frame_index = 0
                         return time.perf_counter() - t0
 
             elif state.motion_current == "Up":
                 if self.is_snap:
-                    self.cooldown += 1
-                    if self.cooldown >= 25:
+                    self.snapshot_frame_index += 1
+                    if self.snapshot_frame_index >= 25:
                         self.save_snapshot(
                             frame, f"{index_frame}_{state.motion_current}_2",
                             state.OUTPUT_IMG, 
@@ -125,14 +125,13 @@ class Snapshot:
                             state.pallet_seq
                         )
                         self.is_snap = False
-                        self.cooldown = 0
+                        self.snapshot_frame_index = 0
                         self.is_pallet_top = True
                         return time.perf_counter() - t0
 
                 elif self.is_pallet_top:
-                    # print(self.cooldown_top_up)
-                    self.cooldown_top_up += 1
-                    if self.cooldown_top_up >= 50:
+                    self.frame_top_up += 1
+                    if self.frame_top_up >= 50:
                         self.save_snapshot(
                             frame, f"{index_frame}_{state.motion_current}_3",
                             state.OUTPUT_IMG, 
@@ -140,11 +139,11 @@ class Snapshot:
                             state.pallet_seq
                         )
                         self.is_pallet_top = False
-                        self.cooldown_top_up = 0
+                        self.frame_top_up = 0
                         return time.perf_counter() - t0
 
         else:
-            self.cooldown_top_up = 0
+            self.frame_top_up = 0
 
         if state.y_threshold_up_above < y_bar < state.y_threshold_up_below:
             if not self.is_snap:

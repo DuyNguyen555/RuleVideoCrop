@@ -11,9 +11,9 @@ from actions.snapshot import Snapshot
 from actions.renamer import Rename
 from vision.qr import QRDetector
 
-
 def process_video(src):
     print("Run: ", src)
+
     cap = cv2.VideoCapture(src, cv2.CAP_FFMPEG)
     if not cap.isOpened():
         raise RuntimeError(f"Cannot open video: {src}")
@@ -22,8 +22,9 @@ def process_video(src):
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    output_path = "output"
     name_video =  os.path.splitext(os.path.basename(src))[0]
-    output_img = os.path.join("img", name_video)
+    output_img = os.path.join(output_path, name_video, "img")
     os.makedirs(output_img, exist_ok=True)
 
     state = State()
@@ -38,9 +39,9 @@ def process_video(src):
 
     frame_index = 0
     # chu kỳ log
-    N = 30
+    N = 100
 
-    log_path = f"log_{name_video}_time.csv"
+    log_path = f"{output_path}/{name_video}/log_time.csv"
     # log_path = getattr(config, "LOG_TIME_CSV", "log_time.csv")
     os.makedirs(os.path.dirname(log_path) or ".", exist_ok=True)
     fcsv = open(log_path, "w", newline="")
@@ -49,6 +50,11 @@ def process_video(src):
 
     while cap.isOpened():
         t0 = time.perf_counter()
+        if frame_index % 2 != 0:
+            cap.grab()
+            frame_index += 1
+            continue
+
         ret, frame = cap.read()
         if not ret:
             break
@@ -74,20 +80,15 @@ def process_video(src):
         ])
 
         # flush theo chu kỳ
-        if frame_index % (N*10) == 0:
+        if frame_index % N == 0:
             fcsv.flush()
-
-        # if frame_index % N == 0:
-        #     print(f"[Frame {frame_index}] read={read_time*1000:.2f} ms | proc={proc_time*1000:.2f} ms | total={total*1000:.2f} ms")
-            # print("Ls qr:", state.ls_qr)
 
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
 
         frame_index += 1
 
-    # t_total_end = time.perf_counter()
-    # elapsed_total_s = t_total_end - t_total_start
+
 
     print("="*40)
     print(f"Video: {src}")

@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Đọc file CSV
-df = pd.read_csv("log_time.csv")
+df = pd.read_csv("output\part_0120\log_time.csv")
 
 df_ms = df.drop(columns=["frame"])
 
