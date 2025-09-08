@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Đọc file CSV
-df = pd.read_csv("output\part_0120\log_time.csv")
+df = pd.read_csv("output\part_0990\log_time.csv")
 
 df_ms = df.drop(columns=["frame"])
 
@@ -15,9 +15,7 @@ mean_sec = mean_ms / 1000
 
 # Gộp thành 1 DataFrame thống kê
 stats = pd.DataFrame({
-    "sum_ms": sum_ms,
     "sum_sec": sum_sec,
-    "mean_ms": mean_ms,
     "mean_sec": mean_sec
 })
 

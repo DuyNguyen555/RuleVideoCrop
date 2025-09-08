@@ -74,10 +74,6 @@ class Pipeline:
 
         self.state.has_found_qr, qr_time = self.qr_detector.detect_qr(frames=white_frame, 
                                                         state=self.state)
-        # self.state.has_found_qr, qr_time = self.qr_detector.detect_qr(frames=white_frame, 
-        #                                                 ls_qr=self.state.ls_qr, 
-        #                                                 name_video_saved=self.state.name_video_saved,
-        #                                                 motion=self.state.motion_current)
 
         # Rule Motion
         self.state.motion_current, self.state.departure, motion_time = FindMotion(motion_detector=self.motion_detector, 

@@ -19,15 +19,23 @@ def handle_message(msg):
         print(f"[Consumer] Message không phải JSON, bỏ qua: {raw_value}")
         return
 
-    path = data.get("path")
-    if not path:
-        print("[Consumer] Không tìm thấy path trong message, bỏ qua.")
+    # Lấy danh sách video
+    video_list = data.get("videos")
+    if not video_list or not isinstance(video_list, list):
+        print("[Consumer] Không tìm thấy danh sách video trong message, bỏ qua.")
         return
 
-    print(f"[Consumer] Received video path: {path}")
+    print(f"[Consumer] Received {len(video_list)} video(s)")
 
-    p = multiprocessing.Process(target=process_video, args=(path,))
-    p.start()
+    for path in video_list:
+        if not path or not path.lower().endswith(".mp4"):
+            print(f"[Consumer] Bỏ qua đường dẫn không hợp lệ: {path}")
+            continue
+
+        print(f"[Consumer] Xử lý video: {path}")
+        # Tạo tiến trình riêng cho từng video
+        p = multiprocessing.Process(target=process_video, args=(path,))
+        p.start()
 
 
 if __name__ == "__main__":

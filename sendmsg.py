@@ -6,8 +6,9 @@ producer = Producer(conf)
 
 videos = {
     "videos": [
-        r"input\part_0120.mp4",
-        r"input\part_0030.mp4"
+        "input/part_0030.mp4",
+        "input/part_0120.mp4",
+        "input/part_0990.mp4"
     ]
 }
 
