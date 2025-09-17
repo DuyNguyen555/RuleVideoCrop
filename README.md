@@ -28,6 +28,7 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
     * **Phân tích Màu sắc**: Phát hiện "thanh ngang màu cam" và sau đó tìm các vùng màu trắng bên trong thanh cam đó.
     * **Phát hiện Mã QR**: Quét và giải mã mã QR từ các vùng màu trắng đã phát hiện.
     * **Phát hiện Chuyển động**: Xác định hướng di chuyển chính của camera (ví dụ: `Up`, `Down`, `None`).
+    [👉 Xem ảnh flow chart](image/pipline.png)
 
 * **Mô-đun Chụp ảnh Thông minh (`Snapshot`)**:
     * Quyết định thời điểm cần lưu lại một khung hình dựa trên các sự kiện cụ thể.
