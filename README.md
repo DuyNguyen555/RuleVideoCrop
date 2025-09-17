@@ -51,15 +51,10 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
         * **Logic thứ tự QR**: Áp dụng các quy tắc về thứ tự xuất hiện của mã QR (ví dụ: đuôi "2" trước, đuôi "1" sau khi đi xuống).
         * **Cơ chế Timeout**: Tự động xóa các ảnh đã lưu nếu không tìm thấy mã QR phù hợp sau một khoảng thời gian chờ, tránh bị "kẹt".
         * **Định dạng tên file cuối cùng**: Đổi tên file theo định dạng `[QR_CODE]_[SUFFIX].jpeg`, với suffix là `_top` hoặc `_front` tùy thuộc vào hướng di chuyển.
-
         * [👉 Xem ảnh flow chart -> Rule xoá link ảnh](image/remove_link_img.png)
         * [👉 Xem ảnh flow chart -> Rule rename file](image/rename_logic.png)
 
     * [👉👉 Xem ảnh flow chart -> Pipline](image/pipline.png)
-
-
-
-
 
 ---
 
@@ -76,3 +71,9 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
 9.  Quá trình lặp lại cho đến khi xử lý hết video. Một file `log_time.csv` ghi lại hiệu năng xử lý được xuất ra cho mỗi video.
 
 ---
+
+## Hướng dẫn chạy
+
+1. Cài đặt Docker Compose bằng lệnh:
+```bash
+docker-compose up -d
