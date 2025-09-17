@@ -26,11 +26,12 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
     * Là "bộ não" của việc phân tích hình ảnh, thực hiện một chuỗi các bước trên mỗi khung hình.
     * **Xác định Vùng quan tâm (ROI)**: Tự động cắt ra một vùng cụ thể của khung hình để tập trung phân tích.
     * **Phân tích Màu sắc**: Phát hiện "thanh ngang màu cam" và sau đó tìm các vùng màu trắng bên trong thanh cam đó.
+    * [👉 Xem ảnh flow chart -> Phát hiện thanh màu cam](image/orange_bar.png)
     * **Phát hiện Mã QR**: Quét và giải mã mã QR từ các vùng màu trắng đã phát hiện.
     * **Phát hiện Chuyển động**: Xác định hướng di chuyển chính của camera (ví dụ: `Up`, `Down`, `None`).
-    [👉 Xem ảnh flow chart](image/pipline.png)
+    * [👉👉 Xem ảnh flow chart -> Pipline](image/pipline.png)
 
-* **Mô-đun Chụp ảnh Thông minh (`Snapshot`)**:
+* **Mô-đun Chụp ảnh (`Snapshot`)**:
     * Quyết định thời điểm cần lưu lại một khung hình dựa trên các sự kiện cụ thể.
     * Các sự kiện kích hoạt bao gồm: khi camera bắt đầu di chuyển, khi vật thể đi qua một ngưỡng xác định, hoặc sau một khoảng thời gian chờ sau một sự kiện khác.
     * Các ảnh được lưu tạm thời với tên dựa trên chỉ số khung hình và trạng thái lúc đó.
