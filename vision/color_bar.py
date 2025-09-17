@@ -12,16 +12,21 @@ def detect_orange_bar(hsv, kernel, show_result=True):
 
     mask = cv2.inRange(hsv, lower, upper)
     mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    # cv2.imshow("Mask",mask)
+    # cv2.imwrite("mask.png",mask_clean)
+
 
     contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     boxes = []
-    for cnt in contours:
-        if cv2.contourArea(cnt) >= 100:
+
+    for cnt in contours: 
+        if cv2.contourArea(cnt) >= 80: 
             x, y, w, h = cv2.boundingRect(cnt)
-            y_center = y + h / 2
-            boxes.append((x, y, w, h, y_center))
+            aspect_ratio = w / h if h != 0 else 0
+            if aspect_ratio >= 1.5: 
+
+                y_center = y + h / 2 
+                boxes.append((x, y, w, h, y_center))
 
     # gộp theo hàng ngang
     merged = []
@@ -60,7 +65,8 @@ def detect_orange_bar(hsv, kernel, show_result=True):
         cv2.putText(filled_result, f"y_center={int(y_center)}", (x+5, y-10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-        cv2.imshow("Orange Bar Detection", filled_result)
+        # cv2.imshow("Orange Bar Detection", filled_result)
+        cv2.imwrite("filled_result.png",filled_result)
 
     return filled_result, y_center, time.perf_counter() - t0
 
@@ -70,7 +76,7 @@ def detect_white(hsv, roi, show_result=True):
     if hsv is None:
         return [], [], time.perf_counter() - t0
     
-    segment = cv2.bitwise_and(cv2.inRange(hsv[...,0], 50, 150), cv2.inRange(hsv[...,1], 0, 100))
+    # segment = cv2.bitwise_and(cv2.inRange(hsv[...,0], 50, 150), cv2.inRange(hsv[...,1], 0, 100))
     # cv2.imwrite("mask.png",segment)
 
     mask = cv2.inRange(hsv, np.array(config.WHITE_LOWER, np.uint8), np.array(config.WHITE_UPPER, np.uint8))

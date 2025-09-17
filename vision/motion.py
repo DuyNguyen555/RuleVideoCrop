@@ -2,28 +2,6 @@ import cv2
 import time
 import numpy as np
 
-# frame_directory_up = 0
-# frame_directory_down = 0
-# def update_direction(y_bar, directory, prev_y_bar):
-#     global frame_directory_up, frame_directory_down
-#     if prev_y_bar is not None:
-#         if y_bar < prev_y_bar:
-#             if frame_directory_down >= 5:
-#                 directory = "down"
-#                 frame_directory_up = 0
-#             else:
-#                 frame_directory_down += 1
-
-#         elif y_bar > prev_y_bar:
-#             if frame_directory_up >= 5:
-#                 directory = "up"
-#                 frame_directory_down = 0
-#             else:
-#                 frame_directory_up += 1
-                
-#     prev_y_bar = y_bar
-#     return directory, prev_y_bar
-
 class MotionDetector:
     def __init__(
         self,
@@ -53,6 +31,10 @@ class MotionDetector:
         # OF state
         self.prev_gray = None
         self.p0 = None
+
+        # Rule detect
+        self.cooldown_departure = 0
+        self.direction = "None"
 
     def reset_tracks(self, gray):
         self.prev_gray = gray
@@ -151,40 +133,31 @@ class MotionDetector:
         return self.confirmed_direction
     
 
-cooldown_departure = 0
-direction = "None"
-def FindMotion(motion_detector, roi, y_bar, state):
-    t0 =time.perf_counter()
-    global direction, cooldown_departure
+    def find_motion(self, roi, y_bar, state):
+        t0 = time.perf_counter()
 
-    # print(direction)
-    
+        # print(self.direction)
 
-    if not state.departure:
-        direction = motion_detector.update(roi)
-        # print(direction)
-        if direction in ("Up", "Down"):
-            state.departure = True
-            return direction, state.departure, time.perf_counter() - t0
-            # return direction, state.departure, time.perf_counter() - t0
-    else:
-        if y_bar == 0.0:
-            cooldown_departure += 1
-            # print(cooldown_departure)
-            if cooldown_departure >= 140 and direction in ("Up", "Down"):
-                state.departure = False
-                direction = "None"
-                motion_detector.reset_direction()
-                cooldown_departure = 0
-                state.name_video_saved = []
+        if not state.departure:
+            self.direction = self.update(roi)
+            # print(self.direction)
+            if self.direction in ("Up", "Down"):
+                state.departure = True
+                return self.direction, state.departure, time.perf_counter() - t0
+                # return self.direction, state.departure, time.perf_counter() - t0
         else:
-            cooldown_departure = 0
+            if y_bar == 0.0:
+                self.cooldown_departure += 1
+                # print(self.cooldown_departure)
+                if self.cooldown_departure >= 140 and self.direction in ("Up", "Down"):
+                    state.departure = False
+                    self.direction = "None"
+                    self.reset_direction()
+                    self.cooldown_departure = 0
+                    state.name_video_saved = []
+            else:
+                self.cooldown_departure = 0
 
-        return direction, state.departure ,time.perf_counter() - t0
-        # return direction, state.departure, time.perf_counter() - t0
-    
-    return direction, state.departure, time.perf_counter() - t0
-    # return direction, state.departure, time.perf_counter() - t0
-
-    # print(direction)
-    # print(time.perf_counter() - t0)
+            return self.direction, state.departure ,time.perf_counter() - t0
+        
+        return self.direction, state.departure, time.perf_counter() - t0

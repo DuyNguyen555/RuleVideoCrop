@@ -3,7 +3,7 @@ import cv2
 import time
 import numpy as np
 from pyzbar import pyzbar
-
+from io_utils.print_log import log
 
 _QR_PATTERN = re.compile(r"^[A-Z]{2}-\d{3}-\d$")
 
@@ -12,6 +12,8 @@ class QRDetector:
         self.two_qr = 0
         self.has_found_qr = False
         self.frame_stop_scan_qr = 0
+        self.count = 0
+        self.flag = False
 
     def sort_qr_motion(self, motion):
         if motion == "Down":
@@ -68,10 +70,20 @@ class QRDetector:
             if self.frame_stop_scan_qr >= 21:
                 self.has_found_qr = False
                 self.frame_stop_scan_qr = 0
+        
+        # if not self.flag:
+        #     self.count += 1
+        # else:
+        #     self.count = 0
+
+        # print(self.count)
+        # print(self.flag)
 
         if self.has_found_qr:
-            return self.has_found_qr, time.perf_counter() - t0
+            return time.perf_counter() - t0
+            # return self.has_found_qr, time.perf_counter() - t0
 
+        self.flag = False
         for frame in frames:
             blur = cv2.GaussianBlur(frame, (3,3), 0)
             gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
@@ -81,12 +93,18 @@ class QRDetector:
                 if self.check_qr(qr) and qr not in state.ls_qr and qr not in state.name_video_saved:
                     state.ls_qr.append(qr)
                     # print(qr)
+                    # log("DEBUG", f"QR: {qr}")
                     self.has_found_qr = self.hasFound(qr)
+                    # self.flag = True
             
         if len(state.ls_qr) >= 2 and state.motion_current is not None:
             state.ls_qr.sort(reverse=self.sort_qr_motion(state.motion_current))
+            
+
+        
 
         if show_result:
             print("QRCode: ", state.ls_qr)
 
-        return self.has_found_qr, time.perf_counter() - t0
+        return time.perf_counter() - t0
+        # return self.has_found_qr, time.perf_counter() - t0

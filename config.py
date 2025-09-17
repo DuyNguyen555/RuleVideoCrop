@@ -1,7 +1,7 @@
 import os
 
 # ROI - W, H
-X1_REL, X2_REL = 0.2, 0.7
+X1_REL, X2_REL = 0.1, 0.7
 Y1_REL, Y2_REL = 0.1, 0.7
 
 # Resize
@@ -13,9 +13,6 @@ TIME_RESET_CROP_IMG   = 20
 CROP_2_COOLDOWN_DOWN  = 15
 CROP_2_COOLDOWN_UP    = 20
 REARM_COOLDOWN_FRAMES = 10
-
-# Renamer
-TIME_RENAME_IMG_DEFAULT = 300
 
 # Ngưỡng màu cam trong HSV
 ORANGE_LOWER = (10, 150, 210)

@@ -4,38 +4,54 @@ import json
 import multiprocessing
 from confluent_kafka import Consumer
 from processing import process_video
+from io_utils.print_log import log
+
 
 def handle_message(msg):
     raw_value = msg.value()
-    print(f"[DEBUG] Raw Kafka message: {raw_value}")
-
-    if raw_value is None:
-        print("[Consumer] Nhận được message rỗng, bỏ qua.")
+    if not raw_value:
+        log("CONSUMER", "Nhận được message rỗng, bỏ qua.")
         return
 
     try:
         data = json.loads(raw_value.decode("utf-8"))
     except json.JSONDecodeError:
-        print(f"[Consumer] Message không phải JSON, bỏ qua: {raw_value}")
+        log("CONSUMER", f"Message is not JSON, skipping: {raw_value}")
         return
 
-    # Lấy danh sách video
     video_list = data.get("videos")
-    if not video_list or not isinstance(video_list, list):
-        print("[Consumer] Không tìm thấy danh sách video trong message, bỏ qua.")
+    if not isinstance(video_list, list):
+        log("CONSUMER", "No valid video listing found, skipping.")
         return
+    
+    # Lọc ra các đường dẫn video hợp lệ
+    valid_videos = [
+        path for path in video_list
+        if isinstance(path, str) and path.lower().endswith(".mp4")
+    ]
 
-    print(f"[Consumer] Received {len(video_list)} video(s)")
+    if not valid_videos:
+        log("CONSUMER", "There are no valid videos in the message.")
+        return
+        
+    log("CONSUMER", f"Nhận được {len(valid_videos)} video(s) để xử lý.")
 
-    for path in video_list:
-        if not path or not path.lower().endswith(".mp4"):
-            print(f"[Consumer] Bỏ qua đường dẫn không hợp lệ: {path}")
-            continue
+    # Giới hạn số tiến trình
+    num_workers = max(1, multiprocessing.cpu_count() - 1)    
+    log("CONSUMER", f"Bắt đầu xử lý với tối đa {num_workers} tiến trình đồng thời...")
+    t0 = time.perf_counter()
+    # try:
+    with multiprocessing.Pool(processes=num_workers) as pool:
+        pool.map(process_video, valid_videos)
+    # except KeyboardInterrupt:
+    #     log("STOP", "Người dùng dừng chương trình.")
+    #     pool.terminate()
+    #     pool.join()
+    #     return
 
-        print(f"[Consumer] Xử lý video: {path}")
-        # Tạo tiến trình riêng cho từng video
-        p = multiprocessing.Process(target=process_video, args=(path,))
-        p.start()
+    t1 = time.perf_counter()
+    log("CONSUMER", f"Hoàn thành xử lý {len(valid_videos)} video trong {t1 - t0:.2f} giây.")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
@@ -48,18 +64,18 @@ if __name__ == "__main__":
     consumer = Consumer(conf)
     consumer.subscribe(["videos"])
 
-    print("[Consumer] Waiting for messages...")
+    log("CONSUMER", "Waiting for message from Kafka...")
     try:
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
                 continue
             if msg.error():
-                print(f"[Consumer] Error: {msg.error()}")
+                log("ERROR", msg.error())
                 continue
-
+            
             handle_message(msg)
     except KeyboardInterrupt:
-        pass
+        log("CONSUMER", "Dừng bởi người dùng.")
     finally:
         consumer.close()
