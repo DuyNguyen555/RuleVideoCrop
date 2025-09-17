@@ -27,8 +27,11 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
     * **Xác định Vùng quan tâm (ROI)**: Tự động cắt ra một vùng cụ thể của khung hình để tập trung phân tích.
     * **Phân tích Màu sắc**: Phát hiện "thanh ngang màu cam" và sau đó tìm các vùng màu trắng bên trong thanh cam đó.
         * [👉 Xem ảnh flow chart -> Phát hiện thanh màu cam](image/orange_bar.png)
+        * [👉 Xem ảnh flow chart -> Phát hiện thanh màu trắng](image/detect_white.png)
     * **Phát hiện Mã QR**: Quét và giải mã mã QR từ các vùng màu trắng đã phát hiện.
+        * [👉 Xem ảnh flow chart -> Phát hiện thanh màu trắng](image/detect_white.png)
     * **Phát hiện Chuyển động**: Xác định hướng di chuyển chính của camera (ví dụ: `Up`, `Down`, `None`).
+        * [👉 Xem ảnh flow chart -> Phát hiện mã QR](image/detect_qr.png)
     * [👉👉 Xem ảnh flow chart -> Pipline](image/pipline.png)
 
 * **Mô-đun Chụp ảnh (`Snapshot`)**:
