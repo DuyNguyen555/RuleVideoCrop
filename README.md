@@ -24,27 +24,42 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
 
 * **Luồng Phân tích Khung hình (`Pipeline`)**:
     * Là "bộ não" của việc phân tích hình ảnh, thực hiện một chuỗi các bước trên mỗi khung hình.
+
     * **Xác định Vùng quan tâm (ROI)**: Tự động cắt ra một vùng cụ thể của khung hình để tập trung phân tích.
+
     * **Phân tích Màu sắc**: Phát hiện "thanh ngang màu cam" và sau đó tìm các vùng màu trắng bên trong thanh cam đó.
         * [👉 Xem ảnh flow chart -> Phát hiện thanh màu cam](image/orange_bar.png)
         * [👉 Xem ảnh flow chart -> Phát hiện thanh màu trắng](image/detect_white.png)
+
     * **Phát hiện Mã QR**: Quét và giải mã mã QR từ các vùng màu trắng đã phát hiện.
-        * [👉 Xem ảnh flow chart -> Phát hiện thanh màu trắng](image/detect_white.png)
-    * **Phát hiện Chuyển động**: Xác định hướng di chuyển chính của camera (ví dụ: `Up`, `Down`, `None`).
         * [👉 Xem ảnh flow chart -> Phát hiện mã QR](image/detect_qr.png)
+
+    * **Phát hiện Chuyển động**: Xác định hướng di chuyển chính của camera (ví dụ: `Up`, `Down`, `None`).
+        * [👉 Xem ảnh flow chart -> Tìm hướng di chuyển của cam](image/motion_detect.png)
+
+    * **Reset trạng thái khi chuyển động thay đổi**
+
+    * **Rule save frame (`Snapshot`)**:
+        * Quyết định thời điểm cần lưu lại một khung hình dựa trên các sự kiện cụ thể.
+        * Các sự kiện kích hoạt bao gồm: khi camera bắt đầu di chuyển, khi vật thể đi qua một ngưỡng xác định, hoặc sau một khoảng thời gian chờ sau một sự kiện khác.
+        * Các ảnh được lưu tạm thời với tên dựa trên chỉ số khung hình và trạng thái lúc đó.
+        * [👉 Xem ảnh flow chart -> Tìm hướng di chuyển của cam](image/snapshot.png)
+
+    * **Rule lưu tên File và xoá tên file trong danh sách (`NameVideo`)**:
+        * Quản lý việc đổi tên các ảnh đã chụp một cách thông minh dựa trên các mã QR đã được quét.
+        * **Ghép cặp Ảnh và QR**: Hệ thống chờ đến khi có đủ một cặp ảnh và một mã QR tương ứng để thực hiện đổi tên.
+        * **Logic thứ tự QR**: Áp dụng các quy tắc về thứ tự xuất hiện của mã QR (ví dụ: đuôi "2" trước, đuôi "1" sau khi đi xuống).
+        * **Cơ chế Timeout**: Tự động xóa các ảnh đã lưu nếu không tìm thấy mã QR phù hợp sau một khoảng thời gian chờ, tránh bị "kẹt".
+        * **Định dạng tên file cuối cùng**: Đổi tên file theo định dạng `[QR_CODE]_[SUFFIX].jpeg`, với suffix là `_top` hoặc `_front` tùy thuộc vào hướng di chuyển.
+
+        * [👉 Xem ảnh flow chart -> Rule xoá link ảnh](image/remove_link_img.png)
+        * [👉 Xem ảnh flow chart -> Rule rename file](image/rename_logic.png)
+
     * [👉👉 Xem ảnh flow chart -> Pipline](image/pipline.png)
 
-* **Mô-đun Chụp ảnh (`Snapshot`)**:
-    * Quyết định thời điểm cần lưu lại một khung hình dựa trên các sự kiện cụ thể.
-    * Các sự kiện kích hoạt bao gồm: khi camera bắt đầu di chuyển, khi vật thể đi qua một ngưỡng xác định, hoặc sau một khoảng thời gian chờ sau một sự kiện khác.
-    * Các ảnh được lưu tạm thời với tên dựa trên chỉ số khung hình và trạng thái lúc đó.
 
-* **Mô-đun Đổi tên File (`NameVideo`)**:
-    * Quản lý việc đổi tên các ảnh đã chụp một cách thông minh dựa trên các mã QR đã được quét.
-    * **Ghép cặp Ảnh và QR**: Hệ thống chờ đến khi có đủ một cặp ảnh và một mã QR tương ứng để thực hiện đổi tên.
-    * **Logic thứ tự QR**: Áp dụng các quy tắc về thứ tự xuất hiện của mã QR (ví dụ: đuôi "2" trước, đuôi "1" sau khi đi xuống).
-    * **Cơ chế Timeout**: Tự động xóa các ảnh đã lưu nếu không tìm thấy mã QR phù hợp sau một khoảng thời gian chờ, tránh bị "kẹt".
-    * **Định dạng tên file cuối cùng**: Đổi tên file theo định dạng `[QR_CODE]_[SUFFIX].jpeg`, với suffix là `_top` hoặc `_front` tùy thuộc vào hướng di chuyển.
+
+
 
 ---
 
