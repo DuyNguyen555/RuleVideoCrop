@@ -40,14 +40,9 @@ def handle_message(msg):
     num_workers = max(1, multiprocessing.cpu_count() - 1)    
     log("CONSUMER", f"Bắt đầu xử lý với tối đa {num_workers} tiến trình đồng thời...")
     t0 = time.perf_counter()
-    # try:
+
     with multiprocessing.Pool(processes=num_workers) as pool:
         pool.map(process_video, valid_videos)
-    # except KeyboardInterrupt:
-    #     log("STOP", "Người dùng dừng chương trình.")
-    #     pool.terminate()
-    #     pool.join()
-    #     return
 
     t1 = time.perf_counter()
     log("CONSUMER", f"Hoàn thành xử lý {len(valid_videos)} video trong {t1 - t0:.2f} giây.")

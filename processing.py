@@ -94,7 +94,7 @@ def process_video(src):
         log("DONE", src)
 
     except Exception as e:
-        log("ERROR", f"{src}: {e}")
+        log("ERROR", f"{src}: {e}") 
         traceback.print_exc()
     except KeyboardInterrupt:
         log("STOP", "by user (Ctrl+C)")

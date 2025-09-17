@@ -87,8 +87,5 @@ class Pipeline:
         # # Rule Rename
         self.state.imgs_save, self.state.ls_qr, self.state.name_video_saved, self.state.pallet_seq, rename_time = self.logic_name_video._rename_if_ready(state=self.state)
 
-        # print(self.state.motion_current)
-        # print(self.state.ls_qr)
-        return orange_time, white_time, qr_time, motion_time, save_img_time, rename_time    
 
-
+        return orange_time, white_time, qr_time, motion_time, save_img_time, rename_time
