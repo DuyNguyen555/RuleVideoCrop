@@ -45,7 +45,7 @@ def handle_message(msg):
         pool.map(process_video, valid_videos)
 
     t1 = time.perf_counter()
-    log("CONSUMER", f"Hoàn thành xử lý {len(valid_videos)} video trong {t1 - t0:.2f} giây.")
+    log("CONSUMER", f"Finished processing {len(valid_videos)} videos in {t1 - t0:.2f} ms.")
     print("=" * 60)
 
 
