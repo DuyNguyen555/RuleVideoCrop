@@ -105,5 +105,4 @@ python worker.py
 python sendmsg.py
 ```
 
-6. Đợi xử lý và trả về kết quả (Đang test trên máy cá nhân):
-![Kết quả khi chạy](image/result.png)
+6. Đợi xử lý và trả về kết quả
