@@ -67,7 +67,7 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
 5.  Dựa trên các sự kiện, `Snapshot Logic` quyết định lưu lại các khung hình quan trọng vào thư mục tạm.
 6.  `NameVideo Logic` liên tục kiểm tra các ảnh đã lưu và danh sách mã QR đã quét.
 7.  Khi đủ điều kiện (đủ cặp ảnh, đúng thứ tự QR), nó sẽ đổi tên ảnh theo mã QR tương ứng.
-8.  Nếu không đủ điều kiện sau một thời gian chờ, các ảnh không hợp lệ sẽ bị xóa.
+8.  Nếu không đủ điều kiện sau một thời gian chờ, các ảnh không hợp lệ sẽ bị xóa trong hàng đợi.
 9.  Quá trình lặp lại cho đến khi xử lý hết video. Một file `log_time.csv` ghi lại hiệu năng xử lý được xuất ra cho mỗi video.
 
 ---
