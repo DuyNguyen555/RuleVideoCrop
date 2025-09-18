@@ -77,3 +77,7 @@ Hệ thống bao gồm các mô-đun chức năng chính sau:
 1. Cài đặt Docker Compose bằng lệnh:
 ```bash
 docker-compose up -d
+
+2. Cài đặt các thư viện:
+```bash
+pip install -r requirements.txt
