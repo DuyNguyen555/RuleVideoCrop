@@ -82,3 +82,25 @@ docker-compose up -d
 2. Cài đặt các thư viện:
 ```bash
 pip install -r requirements.txt
+```
+
+3. Tải các video cần test về rồi sau đó trong file `sendmsg.py` thêm các đường dẫn để khi cần gửi kafka xử lý video:
+```bash
+videos = {
+    "videos": [
+        "input/part_0030.mp4",
+        "input/part_0120.mp4",
+        "input/part_0990.mp4"
+    ]
+}
+```
+
+4. Đảm bảo docker container đã chạy và chạy file `worker.py`:
+```bash
+python worker.py
+```
+
+5. Bắn kafka để xử lý video:
+```bash
+python sendmsg.py
+```
