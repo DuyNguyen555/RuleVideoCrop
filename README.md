@@ -100,7 +100,10 @@ videos = {
 python worker.py
 ```
 
-5. Bắn kafka để xử lý video:
+5. Bắn kafka để xử lý video (tạo 1 terminal khác để chạy):
 ```bash
 python sendmsg.py
 ```
+
+6. Đợi xử lý và trả về kết quả:
+![Kết quả khi chạy](image/result.png)

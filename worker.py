@@ -10,7 +10,7 @@ from io_utils.print_log import log
 def handle_message(msg):
     raw_value = msg.value()
     if not raw_value:
-        log("CONSUMER", "Nhận được message rỗng, bỏ qua.")
+        log("CONSUMER", "Received empty message, skipping.")
         return
 
     try:
@@ -34,11 +34,11 @@ def handle_message(msg):
         log("CONSUMER", "There are no valid videos in the message.")
         return
         
-    log("CONSUMER", f"Nhận được {len(valid_videos)} video(s) để xử lý.")
+    log("CONSUMER", f"Received {len(valid_videos)} video(s) to process.")
 
     # Giới hạn số tiến trình
     num_workers = max(1, multiprocessing.cpu_count() - 1)    
-    log("CONSUMER", f"Bắt đầu xử lý với tối đa {num_workers} tiến trình đồng thời...")
+    log("CONSUMER", f"Start processing with at most {num_workers} concurrent processes...")
     t0 = time.perf_counter()
 
     with multiprocessing.Pool(processes=num_workers) as pool:
